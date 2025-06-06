@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# runcpp - A script to compile and run C++ programs in one step
+# Usage: ./runcpp <filename.cpp>
+
+if [ $# -eq 0 ]; then
+    echo "Error: No input file specified"
+    echo "Usage: $0 <filename.cpp>"
+    exit 1
+fi
+
+filename="$1"
+basename="${filename%.*}"
+binary_dir="bin"
+binary_path="$binary_dir/${basename##*/}"
+
+# Ensure bin directory exists
+mkdir -p "$binary_dir"
+
+# Check if the file exists
+if [ ! -f "$filename" ]; then
+    echo "Error: File '$filename' not found"
+    exit 1
+fi
+
+# Check if the file has .cpp extension
+if [[ "$filename" != *.cpp ]]; then
+    echo "Error: File must have .cpp extension"
+    exit 1
+fi
+
+# Compile the C++ file
+echo "Compiling $filename..."
+g++ -Wall "$filename" -o "$binary_path"
+
+# Check if compilation was successful
+if [ $? -eq 0 ]; then
+    echo "Compilation successful. Binary saved as $binary_path"
+    echo "Running program..."
+    echo "--------- Output ---------"
+    # Run the compiled program
+    ./"$binary_path"
+    echo "-------------------------"
+    # Store the exit code
+    exit_code=$?
+    echo "Program exited with code: $exit_code"
+else
+    echo "Compilation failed."
+    exit 1
+fi
